@@ -1,6 +1,9 @@
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -9,55 +12,64 @@ import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.is;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CreatePetTest {
 
-   static long petId;
+    static Long petId;
+    String body = "{\n" +
+            "  \"id\": 0,\n" +
+            "  \"category\": {\n" +
+            "    \"id\": 0,\n" +
+            "    \"name\": \"string\"\n" +
+            "  },\n" +
+            "  \"name\": \"Mey\",\n" +
+            "  \"photoUrls\": [\n" +
+            "    \"string\"\n" +
+            "  ],\n" +
+            "  \"tags\": [\n" +
+            "    {\n" +
+            "      \"id\": 0,\n" +
+            "      \"name\": \"string\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"status\": \"available\"\n" +
+            "}";
+
+    public RequestSpecification given() {
+        return RestAssured
+                .given()
+                .baseUri("https://petstore.swagger.io/v2")
+                .log().all()
+                .contentType(ContentType.JSON)
+                ;
+    }
+
+    @Before
+    public void prepare() {
+        petId = given()
+                .body(body)
+                .post(PetEndpoint.CREATE_PET)
+                .then()
+        .extract().path("id");
+        System.out.println(petId);
+    }
 
     @Test
-    public void test1CreatePet() {
+    public void CreatePet() {
 
-        String body = "{\n" +
-                "  \"id\": 0,\n" +
-                "  \"category\": {\n" +
-                "    \"id\": 0,\n" +
-                "    \"name\": \"string\"\n" +
-                "  },\n" +
-                "  \"name\": \"Mey\",\n" +
-                "  \"photoUrls\": [\n" +
-                "    \"string\"\n" +
-                "  ],\n" +
-                "  \"tags\": [\n" +
-                "    {\n" +
-                "      \"id\": 0,\n" +
-                "      \"name\": \"string\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"status\": \"available\"\n" +
-                "}";
-        ValidatableResponse response = RestAssured
-                .given()
-                .contentType(ContentType.JSON)
-                // .contentType("application/json")
-                // .header("ContentType", "json")
+        ValidatableResponse response = given()
                 .body(body)
-                .post("https://petstore.swagger.io/v2/pet")
+                .post(PetEndpoint.CREATE_PET)
                 .then()
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is("string"))
                 .body("category.name", is(not("")))
                 .log().all();
-        //response.extract().body().jsonPath().getString("id");
-        petId = response.extract().path("id");
-
     }
 
     @Test
-    public void test2GetPetByID() {
-        RestAssured
-                .given()
-                .contentType(ContentType.JSON)
-                .get("https://petstore.swagger.io/v2/pet/" + petId)
+    public void GetPetByID() {
+        given()
+                .get(PetEndpoint.GET_PET, petId)
                 .then()
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is(not("")))
@@ -66,13 +78,18 @@ public class CreatePetTest {
     }
 
     @Test
-    public void test3DeletePetByID() {
-        RestAssured
-                .given()
-                .contentType(ContentType.JSON)
-                .delete("https://petstore.swagger.io/v2/pet/" + petId)
+    public void DeletePetByID() {
+        given()
+                .delete(PetEndpoint.DELETE_PET, petId)
                 .then()
                 .statusCode(anyOf(is(200), is(202)))
+                .log().all()
+        ;
+        given()
+                .get(PetEndpoint.GET_PET, petId)
+                .then()
+                .statusCode(is(404))
+                .body("message", is ("Pet not found"))
                 .log().all()
         ;
     }
