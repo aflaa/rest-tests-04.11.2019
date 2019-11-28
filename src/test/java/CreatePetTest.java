@@ -11,6 +11,8 @@ public class CreatePetTest {
     private PetEndpoint petEndpoint = new PetEndpoint();
 
     private static Long petId;
+    private String status= "reserved";
+    private String name= "Oops1";
     private String body = "{\n" +
             "  \"id\": 0,\n" +
             "  \"category\": {\n" +
@@ -27,7 +29,26 @@ public class CreatePetTest {
             "      \"name\": \"string\"\n" +
             "    }\n" +
             "  ],\n" +
-            "  \"status\": \"available\"\n" +
+            "  \"status\": \"reserved\"\n" +
+            "}";
+
+    private String updatedBody = "{\n" +
+            "  \"id\": 0,\n" +
+            "  \"category\": {\n" +
+            "    \"id\": 0,\n" +
+            "    \"name\": \"string\"\n" +
+            "  },\n" +
+            "  \"name\": \"Oops\",\n" +
+            "  \"photoUrls\": [\n" +
+            "    \"string\"\n" +
+            "  ],\n" +
+            "  \"tags\": [\n" +
+            "    {\n" +
+            "      \"id\": 0,\n" +
+            "      \"name\": \"string\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"status\": \"canceled\"\n" +
             "}";
 
 
@@ -71,6 +92,38 @@ public class CreatePetTest {
                 .getPet(petId)
                 .statusCode(is(404))
                 .body("message", is("Pet not found"))
+        ;
+    }
+
+    @Test
+    public void getPetByStatus() {
+        petEndpoint
+                .getPetStatus(status)
+                .statusCode(anyOf(is(200), is(202)))
+                .body("status[0]", is(status))
+        ;
+    }
+
+    @Test
+    public void updatePetById() {
+        petEndpoint
+                .createPet(updatedBody)
+                .statusCode(anyOf(is(200), is(202)))
+                .body("category.name", is("string"))
+                .body("category.name", is(not("")))
+        ;
+    }
+    @Test
+    public void updatePet() {
+        petEndpoint
+                .updatePetById(petId,name, status )
+             .statusCode(anyOf(is(200), is(202)))
+        ;
+        petEndpoint
+                .getPet(petId)
+                .statusCode(is(200))
+                .body("status", is(status))
+                .body("name", is(name))
         ;
     }
 }
