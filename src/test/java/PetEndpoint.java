@@ -1,3 +1,4 @@
+import data.Pet;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -26,9 +27,9 @@ public class PetEndpoint {
                 .contentType(ContentType.JSON);
     }
 
-    public ValidatableResponse createPet(String body) {
+    public ValidatableResponse createPet(Pet pet) {
         return given()
-                .body(body)
+                .body(pet)
                 .post(CREATE_PET)
                 .then();
     }

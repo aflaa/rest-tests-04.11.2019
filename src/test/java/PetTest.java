@@ -14,30 +14,30 @@ public class PetTest {
     private static Long petId;
     private String status = "reserved";
     private String name = "Oops";
-    private String body = "{\n" +
-            "  \"id\": 0,\n" +
-            "  \"category\": {\n" +
-            "    \"id\": 0,\n" +
-            "    \"name\": \"string\"\n" +
-            "  },\n" +
-            "  \"name\": \"Mey\",\n" +
-            "  \"photoUrls\": [\n" +
-            "    \"string\"\n" +
-            "  ],\n" +
-            "  \"tags\": [\n" +
-            "    {\n" +
-            "      \"id\": 0,\n" +
-            "      \"name\": \"string\"\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"status\": \"reserved\"\n" +
-            "}";
+//    private String body = "{\n" +
+//            "  \"id\": 0,\n" +
+//            "  \"category\": {\n" +
+//            "    \"id\": 0,\n" +
+//            "    \"name\": \"string\"\n" +
+//            "  },\n" +
+//            "  \"name\": \"Mey\",\n" +
+//            "  \"photoUrls\": [\n" +
+//            "    \"string\"\n" +
+//            "  ],\n" +
+//            "  \"tags\": [\n" +
+//            "    {\n" +
+//            "      \"id\": 0,\n" +
+//            "      \"name\": \"string\"\n" +
+//            "    }\n" +
+//            "  ],\n" +
+//            "  \"status\": \"reserved\"\n" +
+//            "}";
 
 
     @Before
     public void prepare() {
         ValidatableResponse response = petEndpoint
-                .createPet(body)
+                .createPet(pet)
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is("string"))
                 .body("category.name", is(not("")));
@@ -47,7 +47,7 @@ public class PetTest {
     @Test
     public void createPetTest() {
         petEndpoint
-                .createPet(body)
+                .createPet(pet)
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is("string"))
                 .body("category.name", is(not("")))
