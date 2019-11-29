@@ -49,7 +49,7 @@ public class CreatePetTest_hm5 {
                 .extract().path("id")
 
         ;
-        System.out.println("Generated Pet Id is " + idPet);
+        System.out.println("Generated data.Pet Id is " + idPet);
 
         String idString = Long.toString(idPet);
         String pathPetId = "https://petstore.swagger.io/v2/pet/" + (idString);
@@ -59,7 +59,7 @@ public class CreatePetTest_hm5 {
     @Test
     public void getPetByID() {
         String getPetPath = path;
-        System.out.println("Looking for Pet by Path " + getPetPath);
+        System.out.println("Looking for data.Pet by Path " + getPetPath);
 
         RestAssured
                 .given()
@@ -78,7 +78,7 @@ public class CreatePetTest_hm5 {
     @Test
     public void deletePetByID() {
         String deletePetPath = path;
-        System.out.println("Looking for Pet by Path " + deletePetPath);
+        System.out.println("Looking for data.Pet by Path " + deletePetPath);
 
         RestAssured
                 .given()
