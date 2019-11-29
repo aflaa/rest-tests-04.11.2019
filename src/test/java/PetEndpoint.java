@@ -4,11 +4,7 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
-import io.restassured.specification.RequestLogSpecification;
 import io.restassured.specification.RequestSpecification;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PetEndpoint {
     public final static String CREATE_PET = "/pet";
@@ -59,8 +55,6 @@ public class PetEndpoint {
     }
 
     public ValidatableResponse getPetStatus(String status) {
-//        List<String[]> list = new ArrayList<String[]>();
-//            String firstBody = list.get(1)[0];
         return given()
                 .get(GET_PET_STATUS, status)
                 .then()

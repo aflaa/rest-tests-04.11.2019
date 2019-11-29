@@ -11,8 +11,8 @@ public class CreatePetTest {
     private PetEndpoint petEndpoint = new PetEndpoint();
 
     private static Long petId;
-    private String status= "reserved";
-    private String name= "Oops1";
+    private String status = "reserved";
+    private String name = "Oops";
     private String body = "{\n" +
             "  \"id\": 0,\n" +
             "  \"category\": {\n" +
@@ -58,8 +58,7 @@ public class CreatePetTest {
                 .createPet(body)
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is("string"))
-                .body("category.name", is(not("")))
-                ;
+                .body("category.name", is(not("")));
         petId = response.extract().path("id");
     }
 
@@ -70,7 +69,7 @@ public class CreatePetTest {
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is("string"))
                 .body("category.name", is(not("")))
-                ;
+        ;
     }
 
     @Test
@@ -105,19 +104,26 @@ public class CreatePetTest {
     }
 
     @Test
-    public void updatePetById() {
+    public void updatePetByBody() {
         petEndpoint
-                .createPet(updatedBody)
+                .updatePet(updatedBody)
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is("string"))
                 .body("category.name", is(not("")))
         ;
-    }
-    @Test
-    public void updatePet() {
         petEndpoint
-                .updatePetById(petId,name, status )
-             .statusCode(anyOf(is(200), is(202)))
+                .getPet(petId)
+                .statusCode(is(200))
+                .body("status", is("canceled"))
+                .body("name", is(name))
+        ;
+    }
+
+    @Test
+    public void updatePetNameStatus() {
+        petEndpoint
+                .updatePetById(petId, name, status)
+                .statusCode(anyOf(is(200), is(202)))
         ;
         petEndpoint
                 .getPet(petId)
