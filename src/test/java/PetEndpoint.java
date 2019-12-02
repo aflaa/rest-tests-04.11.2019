@@ -1,4 +1,5 @@
 import data.Pet;
+import data.Status;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -7,6 +8,8 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 
+import java.io.File;
+
 public class PetEndpoint {
     public final static String CREATE_PET = "/pet";
     public final static String GET_PET = "/pet/{petID}";
@@ -14,6 +17,7 @@ public class PetEndpoint {
     public final static String GET_PET_STATUS = "/pet/findByStatus";
     public final static String UPDATE_PET_BY_ID = "/pet/{petID}";
     public final static String UPDATE_PET = "/pet";
+    public final static String UPLOAD_PET_IMAGE = "/pet/{petID}/uploadImage";
 
     static {
         RestAssured.filters(new RequestLoggingFilter(LogDetail.ALL));
@@ -46,21 +50,21 @@ public class PetEndpoint {
                 .then();
     }
 
-    public ValidatableResponse getPetByStatus(String petSatus) {
+    public ValidatableResponse getPetByStatus(Status status) {
         return given()
-                .queryParam("status", petSatus)
+                .queryParam("status", status)
                 .get(GET_PET_STATUS)
                 .then();
     }
 
-    public ValidatableResponse updatePet(String body) {
+    public ValidatableResponse updatePet(Pet updatedPet) {
         return given()
-                .body(body)
+                .body(updatedPet)
                 .put(UPDATE_PET)
                 .then();
     }
 
-    public ValidatableResponse updatePetById(long petId, String petName, String petStatus) {
+    public ValidatableResponse updatePetById(long petId, String petName, Status petStatus) {
         return given()
                 .contentType(ContentType.URLENC)
                 .formParam("name", petName)
@@ -70,4 +74,14 @@ public class PetEndpoint {
 
 
     }
+
+    public ValidatableResponse uploadPetImage(long petId, String resourcesFilePath) {
+        File file = new File(getClass().getResource(resourcesFilePath).getFile());
+        return given()
+                .contentType("multipart/form-data")
+                .multiPart(file)
+                .post(UPLOAD_PET_IMAGE, petId)
+                .then();
+    }
+
 }

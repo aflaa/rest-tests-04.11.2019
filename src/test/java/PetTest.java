@@ -1,46 +1,29 @@
 import data.Pet;
+import data.Status;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class PetTest {
     private PetEndpoint petEndpoint = new PetEndpoint();
 
-    private Pet pet = new Pet(0,"string", "Mey","reserved" );
     private static Long petId;
-    private String status = "reserved";
-    private String name = "Oops";
-//    private String body = "{\n" +
-//            "  \"id\": 0,\n" +
-//            "  \"category\": {\n" +
-//            "    \"id\": 0,\n" +
-//            "    \"name\": \"string\"\n" +
-//            "  },\n" +
-//            "  \"name\": \"Mey\",\n" +
-//            "  \"photoUrls\": [\n" +
-//            "    \"string\"\n" +
-//            "  ],\n" +
-//            "  \"tags\": [\n" +
-//            "    {\n" +
-//            "      \"id\": 0,\n" +
-//            "      \"name\": \"string\"\n" +
-//            "    }\n" +
-//            "  ],\n" +
-//            "  \"status\": \"reserved\"\n" +
-//            "}";
+    private String name = "Mey";
+    private String categoryName = "string";
 
+    private Pet pet = new Pet(0, categoryName, name, Status.pending);
 
     @Before
     public void prepare() {
         ValidatableResponse response = petEndpoint
                 .createPet(pet)
                 .statusCode(anyOf(is(200), is(202)))
-                .body("category.name", is("string"))
-                .body("category.name", is(not("")));
+                .body("category.name", is(categoryName));
         petId = response.extract().path("id");
     }
 
@@ -49,8 +32,7 @@ public class PetTest {
         petEndpoint
                 .createPet(pet)
                 .statusCode(anyOf(is(200), is(202)))
-                .body("category.name", is("string"))
-                .body("category.name", is(not("")))
+                .body("category.name", is(categoryName))
         ;
     }
 
@@ -59,7 +41,7 @@ public class PetTest {
         petEndpoint
                 .getPet(petId)
                 .statusCode(anyOf(is(200), is(202)))
-                .body("category.name", is(not("")));
+                .body("category.name", is(categoryName));
     }
 
     @Test
@@ -70,54 +52,47 @@ public class PetTest {
         petEndpoint
                 .getPet(petId)
                 .statusCode(is(404))
-                .body("message", is("data.Pet not found"));
+                .body("message", is("Pet not found"));
     }
 
     @Test
     public void getPetByStatus() {
         petEndpoint
-                .getPetByStatus(status)
+                .getPetByStatus(Status.pending)
                 .statusCode(200)
-                .body("status[0]", is(status));//ToDo: verify each element status
+                .body("status[]", everyItem(is(Status.pending.toString())));
     }
 
     @Test
     public void updatePetByBody() {
-        String updatedBody = "{\n" +
-                "  \"id\": " + petId + ",\n" +
-                "  \"category\": {\n" +
-                "    \"id\": 0,\n" +
-                "    \"name\": \"pets\"\n" +
-                "  },\n" +
-                "  \"name\": \"" + name + "\",\n" +
-                "  \"photoUrls\": [\n" +
-                "    \"string\"\n" +
-                "  ],\n" +
-                "  \"tags\": [\n" +
-                "    {\n" +
-                "      \"id\": 0,\n" +
-                "      \"name\": \"string\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"status\": \"canceled\"\n" +
-                "}";
+        Pet updatedPet = new Pet(petId, "pets", "Oops", Status.sold);
+
         petEndpoint
-                .updatePet(updatedBody)
+                .updatePet(updatedPet)
                 .statusCode(anyOf(is(200), is(202)))
                 .body("category.name", is("pets"))
-                .body("status", is("canceled"))
-                .body("name", is(name));
+                .body("status", is(Status.sold.toString()))
+                .body("name", is("Oops"));
     }
 
     @Test
-    public void updatePetNameStatus() {
+    public void updatePetForm() {
         petEndpoint
-                .updatePetById(petId, name, status)
+                .updatePetById(petId, name, Status.sold)
                 .statusCode(anyOf(is(200), is(202)));
         petEndpoint
                 .getPet(petId)
                 .statusCode(is(200))
-                .body("status", is(status))
+                .body("status", is(Status.sold.toString()))
                 .body("name", is(name));
+    }
+
+    @Test
+    public void uploadPetImage() {
+        String imagePath = "./cat.jpg";
+        petEndpoint
+                .uploadPetImage(petId, imagePath)
+                .statusCode(200)
+                .body("message", containsString("uploaded to "+ imagePath));
     }
 }
