@@ -75,11 +75,11 @@
         </dependency>
 
         <!--for JavaObj to JSON serialisation-->
-        <dependency>
+<!--        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.databind.version}</version>
-        </dependency>
+        </dependency>-->
 
         <!--to enable Serenity logging-->
         <dependency>
@@ -87,6 +87,14 @@
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
             <scope>test</scope>
+        </dependency>
+
+<!--        build objects without constructors-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.10</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

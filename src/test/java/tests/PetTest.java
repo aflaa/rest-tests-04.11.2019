@@ -1,3 +1,6 @@
+package tests;
+
+import data.Category;
 import data.Pet;
 import data.Status;
 import io.restassured.response.ValidatableResponse;
@@ -6,20 +9,30 @@ import net.thucydides.core.annotations.Steps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import steps.PetEndpoint;
 
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.Matchers.*;
 
 @RunWith(SerenityRunner.class)
 public class PetTest {
-    // private PetEndpoint petEndpoint = new PetEndpoint();
+    // private steps.PetEndpoint petEndpoint = new steps.PetEndpoint();
     @Steps
     private PetEndpoint petEndpoint;
     private static Long petId;
     private String name = "Mey";
     private String categoryName = "string";
 
-    private Pet pet = new Pet(0, categoryName, name, Status.pending);
+    //  private Pet pet = new Pet(0, categoryName, name, Status.pending);
+
+    //private Pet pet = Pet.builder().build();
+
+    private Pet pet = Pet.builder()
+            .id(0)
+            .category(Category.builder().name("string").build())
+            .name("Mey")
+            .status(Status.pending)
+            .build();
 
     @Before
     public void prepare() {
@@ -68,7 +81,12 @@ public class PetTest {
 
     @Test
     public void updatePetByBody() {
-        Pet updatedPet = new Pet(petId, "pets", "Oops", Status.sold);
+        Pet updatedPet = Pet.builder()
+                .id(petId)
+                .category(Category.builder().name("pets").build())
+                .name("Oops")
+                .status(Status.sold)
+                .build();
 
         petEndpoint
                 .updatePet(updatedPet)
@@ -92,7 +110,7 @@ public class PetTest {
 
     @Test
     public void uploadPetImage() {
-        String imagePath = "./cat.jpg";
+        String imagePath = "file:///test/resources/cat.jpg";
         petEndpoint
                 .uploadPetImage(petId, imagePath)
                 .statusCode(200)
